@@ -155,5 +155,6 @@ Emby 的「删除」默认会连文件一起删。面板的「待清理」正是
 
 ## 链接
 
-- 项目主页：<https://www.zszsz.win>
+- 项目主页：<https://github.com/rp168/zrostrm-docs>
+- 作者主页：<https://www.zszsz.win>
 - 问题反馈：[Issues](../../issues)
