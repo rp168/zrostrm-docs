@@ -1,0 +1,38 @@
+# ZROstrm · 通用部署模板（Docker Compose）
+#
+#   mkdir -p config media/115strm media/quarkstrm
+#   docker compose up -d
+#
+# 端口：5280 = 面板（不要直接暴露公网）；8020 = STRM 302 网关（播放器要能访问）
+#
+# 两个目录必须先建好，容器以 root 运行：
+#   ./config   面板数据库、网盘 Cookie、设置（含凭据，务必备份，别进 git）
+#   ./media    生成的 .strm 树，交给 Emby / Jellyfin 挂载读取
+
+services:
+  zrostrm:
+    image: ghcr.io/rp168/zrostrm:latest
+    # 想钉版本：image: ghcr.io/rp168/zrostrm:0.7.10
+    container_name: zrostrm
+    restart: unless-stopped
+    ports:
+      - "5280:5280"
+      - "8020:8020"
+    volumes:
+      - ./config:/config
+      - ./media/115strm:/media/115strm
+      - ./media/quarkstrm:/media/quarkstrm
+    environment:
+      - TZ=Asia/Shanghai
+      - CONFIG_DIR=/config
+      - STRM_ROOT=/media/115strm
+      - QUARK_STRM_ROOT=/media/quarkstrm
+      - WEBUI_PORT=5280
+      - GATEWAY_PORT=8020
+    # 不挂 docker.sock：面板不需要控制宿主 Docker
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:5280/health',timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
